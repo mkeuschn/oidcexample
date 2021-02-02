@@ -24,18 +24,17 @@ export class AppComponent {
         this.oauthService.setupAutomaticSilentRefresh();
 
         // Automatically load user profile
-        // this.oauthService.events
-        //     .pipe(filter(e => e.type === 'token_received'))
-        //     .subscribe(_ => {
-        //         this.oauthService.loadUserProfile();
-        //         // this.oauthService.loadUserProfile().then((userInfo: UserInfo) => {
-        //         //     console.log(userInfo);
-        //         //     // this.userInfoService.update(new ExtendedUserInfo().deserialize(userInfo));
-        //         // });
-        //     });
-
         this.oauthService.events
             .pipe(filter(e => e.type === 'token_received'))
-            .subscribe(_ => this.oauthService.loadUserProfile());
+            .subscribe(_ => {
+                this.oauthService.loadUserProfile().then((userInfo: UserInfo) => {
+                    // console.log(userInfo);
+                    this.userInfoService.update(new ExtendedUserInfo().deserialize(userInfo));
+                });
+            });
+
+        // this.oauthService.events
+        //     .pipe(filter(e => e.type === 'token_received'))
+        //     .subscribe(_ => this.oauthService.loadUserProfile());
     }
 }

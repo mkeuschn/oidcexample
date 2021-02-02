@@ -28,7 +28,7 @@ namespace ResourceServer
         {
             services.AddControllers();
             services.AddResourceServerCors();
-            services.AddResourceServerAuthentication();
+            services.AddResourceServerAuthentication(Configuration);
             services.AddResourceServerAuthorization();
         }
 

@@ -2,8 +2,10 @@
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ResourceServer.Authorization;
+using ResourceServer.Options;
 
 namespace ResourceServer.Extensions
 {
@@ -27,14 +29,17 @@ namespace ResourceServer.Extensions
             return services;
         }
 
-        public static IServiceCollection AddResourceServerAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddResourceServerAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddOAuth2Introspection(options =>
                 {
-                    options.Authority = "http://localhost:5000";
-                    options.ClientId = "resource_server";
-                    options.ClientSecret = "secret";
+                    var oidc = new OpenIdConnectOptions();
+                    configuration.GetSection(OpenIdConnectOptions.Key).Bind(oidc);
+
+                    options.Authority = oidc.Authority;
+                    options.ClientId = oidc.ClientId;
+                    options.ClientSecret = oidc.Secret;
                     options.Events.OnAuthenticationFailed = async context => await Task.Factory.StartNew(() =>
                     {
                         Console.WriteLine(context.Error);
