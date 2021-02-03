@@ -4,10 +4,11 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ResourceServer.Misc;
 
 namespace ResourceServer.Controllers
 {
-    [Authorize("ClaimPolicy")]
+    [Authorize(Policies.ClaimPolicy)]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase

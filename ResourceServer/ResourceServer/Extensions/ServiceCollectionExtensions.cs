@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using ResourceServer.Authorization;
+using ResourceServer.Misc;
 using ResourceServer.Options;
 
 namespace ResourceServer.Extensions
 {
-    public static class ResourceServerExtensions
+    public static class ServiceCollectionExtensions
     {
-        public static string CorsPolicy = "CorsPolicy";
-
         public static IServiceCollection AddResourceServerCors(this IServiceCollection services)
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(CorsPolicy,
+                options.AddPolicy(Policies.CorsPolicy,
                     builder =>
                     {
                         builder
@@ -56,10 +58,30 @@ namespace ResourceServer.Extensions
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ClaimPolicy", builder => builder.Requirements.Add(new HasClaimRequirement("active")));
+                options.AddPolicy(Policies.ClaimPolicy, builder => builder.Requirements.Add(new HasClaimRequirement("active")));
             });
 
             services.AddSingleton<IAuthorizationHandler, HasClaimHandler>();
+            return services;
+        }
+
+        public static IServiceCollection AddResourceServerOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddOpenApiDocument(configure =>
+            {
+                configure.Title = "Resource Server";
+                configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Description = "Type into the textbox: Bearer {your Opaque token}."
+                });
+
+                configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+            });
+
+
             return services;
         }
     }
