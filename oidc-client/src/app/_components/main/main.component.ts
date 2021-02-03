@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { OAuthService, OAuthStorage } from 'angular-oauth2-oidc';
 import { UserInfoService } from 'src/app/_services/user-info.service';
 import { timer } from 'rxjs';
 
@@ -17,6 +17,7 @@ export class MainComponent implements OnInit {
     public accessTokenExpiresIn: any;
     public idTokenExpirationDate: Date;
     public accessTokenExpirationDate: Date;
+    public idTokenStoredAt: Date;
 
     public info: any;
     public data: any;
@@ -24,10 +25,12 @@ export class MainComponent implements OnInit {
     constructor(
         private userInfoService: UserInfoService,
         private oAuthService: OAuthService,
-        private httpClient: HttpClient) {
+        private httpClient: HttpClient,
+        private storage: OAuthStorage) {
             this.now = new Date();
             this.idTokenExpirationDate = new Date();
             this.accessTokenExpirationDate = new Date();
+            this.idTokenStoredAt = new Date();
         }
 
     ngOnInit(): void {
@@ -59,6 +62,11 @@ export class MainComponent implements OnInit {
             this.accessTokenExpirationDate = new Date(this.oAuthService.getAccessTokenExpiration());
             this.idTokenExpiresIn = this.diff(this.idTokenExpirationDate.getTime(), this.now.getTime());
             this.accessTokenExpiresIn = this.diff(this.oAuthService.getAccessTokenExpiration(), this.now.getTime());
+
+            const storedAt = this.storage.getItem('id_token_stored_at');
+            if (storedAt) {
+                this.idTokenStoredAt = new Date(+storedAt);
+            }
         });
     }
 

@@ -20,8 +20,9 @@ export class AppComponent {
 
     private configure() {
         this.oauthService.configure(authCodeFlowConfig);
-        this.oauthService.loadDiscoveryDocumentAndLogin();
         this.oauthService.setupAutomaticSilentRefresh();
+
+        this.oauthService.loadDiscoveryDocumentAndLogin();
 
         // Automatically load user profile
         this.oauthService.events

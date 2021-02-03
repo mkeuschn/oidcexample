@@ -27,4 +27,6 @@ export const authCodeFlowConfig: AuthConfig = {
     scope: 'openid profile',
 
     showDebugInformation: true,
+
+    timeoutFactor: 0.1
 };
